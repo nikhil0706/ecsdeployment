@@ -1,25 +1,75 @@
-name: Build and Push to Docker Hub
+name: Deploy to ECS Fargate with Terraform
 
 on:
   push:
     branches:
-      - main  # Runs on push to main branch
+      - main
 
 jobs:
-  push_to_docker_hub:
-    name: Build and Push Docker Image
+  deploy:
     runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-east-1
+      ECR_REPOSITORY: my-app
+      ECS_CLUSTER: my-app-cluster
+      ECS_SERVICE: my-app-service
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/resume-app:latest .
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
 
-      - name: Push Image to Docker Hub
+      - name: Initialize Terraform
+        run: terraform init
+        working-directory: terraform
+
+      - name: Plan Terraform Changes
+        run: terraform plan
+        working-directory: terraform
+
+      - name: Apply Terraform Changes
+        run: terraform apply -auto-approve
+        working-directory: terraform
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, Tag, and Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/resume-app:latest
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update ECS Task Definition
+        id: update-task
+        run: |
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ env.ECS_SERVICE }})
+          echo "$TASK_DEFINITION" > task-def.json
+
+          NEW_TASK_DEF=$(jq --arg IMAGE_URI "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
+            '.taskDefinition.containerDefinitions[0].image = $IMAGE_URI' task-def.json)
+
+          echo "$NEW_TASK_DEF" > new-task-def.json
+          TASK_REVISION=$(aws ecs register-task-definition --cli-input-json file://new-task-def.json --query 'taskDefinition.revision' --output text)
+
+          echo "TASK_REVISION=$TASK_REVISION" >> $GITHUB_ENV
+
+      - name: Deploy New Task Definition to ECS
+        run: |
+          aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --task-definition ${{ env.ECS_SERVICE }}:$TASK_REVISION
+
