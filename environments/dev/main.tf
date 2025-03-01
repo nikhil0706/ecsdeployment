@@ -1,15 +1,10 @@
 provider "aws" {
-  region = "us-east-1"
+  region = var.aws_region
 }
 
 # Retrieve existing ECS cluster
 data "aws_ecs_cluster" "existing" {
-  cluster_name = "my-app-cluster"  # Update with your cluster name
-}
-
-# Retrieve existing ECR repository
-data "aws_ecr_repository" "app_repo" {
-  name = "my-app"  # Update with your repository name
+  cluster_name = var.ecs_cluster_name
 }
 
 # IAM Role for Task Execution
@@ -34,72 +29,24 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 
 # ECS Task Definition
 resource "aws_ecs_task_definition" "app_task" {
-  family                   = "my-app-task"
+  family                   = var.ecs_service_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "512"
-  memory                   = "1024"
+  cpu                      = var.cpu
+  memory                   = var.memory
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
 
   container_definitions = jsonencode([
     {
       name      = "app-container"
-      image     = "${data.aws_ecr_repository.app_repo.repository_url}:latest"
-      cpu       = 512
-      memory    = 1024
+      image     = "${data.aws_ecr_repository.app_repo.repository_url}@${data.aws_ecr_image.latest_image.image_digest}"
+      cpu       = var.cpu
+      memory    = var.memory
       essential = true
       portMappings = [{
-        containerPort = 80
-        hostPort      = 80
+        containerPort = var.container_port
+        hostPort      = var.container_port
       }]
     }
   ])
-}
-
-# Retrieve existing VPC & subnets
-data "aws_vpc" "existing" {
-  id = "vpc-xxxxxxxx" # Update with your VPC ID
-}
-
-data "aws_subnets" "existing" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.existing.id]
-  }
-}
-
-# Security Group
-resource "aws_security_group" "ecs_sg" {
-  name        = "ecs-sg"
-  vpc_id      = data.aws_vpc.existing.id
-
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# ECS Service
-resource "aws_ecs_service" "app_service" {
-  name            = "my-app-service"
-  cluster         = data.aws_ecs_cluster.existing.id
-  task_definition = aws_ecs_task_definition.app_task.arn
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets          = data.aws_subnets.existing.ids
-    security_groups  = [aws_security_group.ecs_sg.id]
-    assign_public_ip = true
-  }
-
-  desired_count = 2
 }
