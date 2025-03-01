@@ -7,4 +7,4 @@ security_group_name = "my-existing-security-group"
 ecs_cluster_name    = "my-existing-cluster"
 task_family_name    = "my-task-family"
 ecr_repository_name = "my-app-repository"
-
+lb_name = "my-app-load-balancer"
