@@ -1,22 +1,22 @@
 # Security Group
-resource "aws_security_group" "ecs_sg" {
-  name        = "ecs-sg"
-  vpc_id      = var.vpc_id
+#resource "aws_security_group" "ecs_sg" {
+#  name        = "ecs-sg"
+#  vpc_id      = var.vpc_id
 
-  ingress {
-    from_port   = var.container_port
-    to_port     = var.container_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#  ingress {
+#    from_port   = var.container_port
+#    to_port     = var.container_port
+#    protocol    = "tcp"
+#    cidr_blocks = ["0.0.0.0/0"]
+#  }
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
+#  egress {
+#    from_port   = 0
+#    to_port     = 0
+#    protocol    = "-1"
+#    cidr_blocks = ["0.0.0.0/0"]
+#  }
+#}
 
 # ECS Service
 resource "aws_ecs_service" "app_service" {
@@ -33,3 +33,6 @@ resource "aws_ecs_service" "app_service" {
 
   desired_count = 2
 }
+
+
+
