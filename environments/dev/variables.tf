@@ -34,3 +34,9 @@ variable "subnet_ids" {
   description = "List of subnets for ECS tasks"
   type        = list(string)
 }
+
+variable "task_family_name" {
+  description = "The family name of the ECS task definition"
+  type        = string
+}
+
