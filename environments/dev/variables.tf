@@ -1,10 +1,10 @@
-#variable "aws_region" {
-#  default = "us-east-2"
-#}
+variable "aws_region" {
+  default = "us-east-2"
+}
 
-#variable "ecs_cluster_name" {
-#  default = "my-app-cluster"
-#}
+variable "ecs_cluster_name" {
+  default = "my-app-cluster"
+}
 
 #variable "ecs_service_name" {
 #  default = "my-app-service"
