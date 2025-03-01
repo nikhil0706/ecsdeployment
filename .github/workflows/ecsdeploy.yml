@@ -58,36 +58,5 @@ jobs:
         working-directory: environments/${{github.event.inputs.environment}}
 
       - name: Apply Terraform Changes
-        run: terraform apply -auto-approve
+        run: terraform apply -var-file=terraform.tfvars -auto-approve
         working-directory: environments/${{github.event.inputs.environment}}
-
-     # - name: Login to Amazon ECR
-     #   id: login-ecr
-     #   uses: aws-actions/amazon-ecr-login@v1
-
-     # - name: Build, Tag, and Push Docker Image
-     #   env:
-     #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-     #     IMAGE_TAG: latest
-     #   run: |
-     #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-     #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-      #- name: Update ECS Task Definition
-      #  id: update-task
-      #  run: |
-      #    TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${{ env.ECS_SERVICE }})
-      #    echo "$TASK_DEFINITION" > task-def.json
-
-      #    NEW_TASK_DEF=$(jq --arg IMAGE_URI "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
-      #      '.taskDefinition.containerDefinitions[0].image = $IMAGE_URI' task-def.json)
-
-       #   echo "$NEW_TASK_DEF" > new-task-def.json
-       #   TASK_REVISION=$(aws ecs register-task-definition --cli-input-json file://new-task-def.json --query 'taskDefinition.revision' --output text)
-
-       #   echo "TASK_REVISION=$TASK_REVISION" >> $GITHUB_ENV
-
-      #- name: Deploy New Task Definition to ECS
-      #  run: |
-       #   aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --task-definition ${{ env.ECS_SERVICE }}:$TASK_REVISION
-
