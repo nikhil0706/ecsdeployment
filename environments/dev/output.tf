@@ -1,7 +1,12 @@
-output "load_balancer_url" {
-  description = "The URL of the Application Load Balancer"
-  value       = aws_lb.app_lb.dns_name
+data "aws_lb" "existing_lb" {
+  name = "your-existing-lb-name"
 }
+
+output "load_balancer_url" {
+  value = data.aws_lb.existing_lb.dns_name
+}
+
+
 
 output "vpc_id" {
   description = "The ID of the created VPC"
