@@ -2,11 +2,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-provider "aws" {
-  version = "~> 2.0"
-  region  = "us-east-2"
-}
-
 terraform {
   backend "s3" {
     bucket = "terraform-ecs-presnetation"
