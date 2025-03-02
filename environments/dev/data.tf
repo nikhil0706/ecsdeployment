@@ -82,12 +82,12 @@ output "ecs_task_definition_arn" {
   value = data.aws_ecs_task_definition.existing_task.arn
 }
 
-data "aws_lb_target_group" "app-tg" {
+data "aws_lb_target_group" "existing_tg" {
   target_group = "app-tg" 
 }
 
 output "aws_lb_target_group" {
-  value = data.aws_lb_target_group
+  value = data.aws_lb_target_group.existing_tg.arn
 }
 
 data "aws_ecr_repository" "app_repo" {
