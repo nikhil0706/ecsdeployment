@@ -83,7 +83,7 @@ output "ecs_task_definition_arn" {
 }
 
 data "aws_lb_target_group" "existing_tg" {
-  target_group = "app-tg" 
+  name = "app-tg" 
 }
 
 output "aws_lb_target_group" {
