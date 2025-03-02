@@ -73,7 +73,7 @@ output "ecs_cluster_id" {
 }
 
 
-data "aws_ecs_task_definition" "app_task" {
+data "aws_ecs_task_definition" "existing_task" {
   task_definition = "app_task" 
 #task family name
 }
@@ -102,9 +102,3 @@ data "aws_ecr_image" "latest_image" {
 
 
 
-resource "aws_lb_target_group" "app_tg" {
-  name     = "app-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
-}
