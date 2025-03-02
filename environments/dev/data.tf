@@ -1,5 +1,5 @@
 data "aws_lb" "existing_lb" {
-  name = "your-existing-lb-name"
+  name = "app-lb"
 }
 
 output "load_balancer_url" {
@@ -9,7 +9,7 @@ output "load_balancer_url" {
 data "aws_vpc" "existing" {
   filter {
     name   = "tag:Name"
-    values = ["your-vpc-name"]
+    values = ["main"]
   }
 }
 
@@ -21,7 +21,7 @@ output "vpc_id" {
 data "aws_subnets" "existing_subnets" {
   filter {
     name   = "vpc-id"
-    values = [data.aws_vpc.existing.id]
+    values = ["subnet-0408a0b25369c368a", "subnet-0408a0b25369c368a" ]
   }
 }
 
@@ -34,7 +34,7 @@ output "subnet_ids" {
 data "aws_security_group" "existing_sg" {
   filter {
     name   = "tag:Name"
-    values = ["your-security-group-name"]
+    values = ["ecs_secgrp"]
   }
 }
 
@@ -42,8 +42,10 @@ output "security_group_id" {
   value = data.aws_security_group.existing_sg.id
 }
 
+
+
 data "aws_ecs_cluster" "existing_cluster" {
-  cluster_name = "your-existing-cluster-name"
+  cluster_name = "ecs_cluster"
 }
 
 output "ecs_cluster_id" {
@@ -52,7 +54,8 @@ output "ecs_cluster_id" {
 
 
 data "aws_ecs_task_definition" "existing_task" {
-  task_definition = "your-task-family-name"
+  task_definition = "app_task" 
+#task family name
 }
 
 output "ecs_task_definition_arn" {
