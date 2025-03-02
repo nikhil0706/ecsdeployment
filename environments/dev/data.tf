@@ -13,9 +13,9 @@ output "load_balancer_url" {
 #  }
 #}
 
-output "vpc_id" {
-  value = data.aws_vpc.existing_vpc.id
-}
+#output "vpc_id" {
+#  value = data.aws_vpc.existing_vpc.id
+#}
 
 
 # Fetch Subnet IDs using the VPC ID and Subnet Names
