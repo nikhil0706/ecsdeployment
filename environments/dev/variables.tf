@@ -10,10 +10,6 @@ variable "ecs_service_name" {
   default = "my-app-service"
 }
 
-variable "ecr_repository_name" {
-  default = "my-app"
-}
-
 ###############
 
 variable "ecr_repository_name" {
