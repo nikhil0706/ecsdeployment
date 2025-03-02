@@ -2,6 +2,19 @@ provider "aws" {
   region = var.aws_region
 }
 
+provider "aws" {
+  version = "~> 2.0"
+  region  = "us-east-2"
+}
+
+terraform {
+  backend "s3" {
+    bucket = "terraform-ecs-presnetation"
+    key    = "Aws-default-infrastructure"
+    region = "us-east-2"
+  }
+}
+
 # Retrieve existing ECS cluster
 data "aws_ecs_cluster" "existing" {
   cluster_name = var.ecs_cluster_name
