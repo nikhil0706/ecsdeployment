@@ -6,27 +6,47 @@ output "load_balancer_url" {
   value = data.aws_lb.existing_lb.dns_name
 }
 
-data "aws_vpc" "main" {
+data "aws_vpc" "existing_vpc" {
   filter {
-    name   = "tag:Name"
+    name   = "tag:ecs-vpc"
     values = ["main"]
   }
 }
 
 output "vpc_id" {
-  value = data.aws_vpc.existing.id
+  value = data.aws_vpc.existing_vpc.id
 }
 
 
+# Fetch Subnet IDs using the VPC ID and Subnet Names
 data "aws_subnets" "existing_subnets" {
   filter {
-    name   = "vpc-id"
-    values = ["subnet-0408a0b25369c368a", "subnet-0408a0b25369c368a" ]
+    name   = "vpc_id"
+    values = [data.aws_vpc.existing_vpc.id]
   }
 }
 
-output "subnet_ids" {
-  value = data.aws_subnets.existing_subnets.ids
+data "aws_subnet" "subnet_1" {
+  filter {
+    name   = "tag:ecs-subnet1"
+    values = ["ecs_subnet_1"]  # Replace with Subnet Name
+  }
+}
+
+data "aws_subnet" "subnet_2" {
+  filter {
+    name   = "tag:ecs-subnet2"
+    values = ["ecs_subnet_1"]  # Replace with Subnet Name
+  }
+}
+
+# Output subnet IDs
+output "subnet_1_id" {
+  value = data.aws_subnet.subnet_1.id
+}
+
+output "subnet_2_id" {
+  value = data.aws_subnet.subnet_2.id
 }
 
 
