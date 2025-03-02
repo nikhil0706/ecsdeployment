@@ -1,4 +1,4 @@
-data "aws_lb" "app-lb" {
+data "aws_lb" "existing_lb" {
   name = "app-lb"
 }
 
