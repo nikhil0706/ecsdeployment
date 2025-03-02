@@ -14,6 +14,15 @@ variable "aws_region" {
 #  default = "my-app"
 #}
 
+###############
+
+variable "ecr_repository_name" {
+  description = "The name of the existing ECR repository"
+  type        = string
+}
+
+################
+
 #variable "cpu" {
 #  default = "512"
 #}
