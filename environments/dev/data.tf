@@ -1,4 +1,4 @@
-data "aws_lb" "existing_lb" {
+data "aws_lb" "app-lb" {
   name = "app-lb"
 }
 
@@ -6,7 +6,7 @@ output "load_balancer_url" {
   value = data.aws_lb.existing_lb.dns_name
 }
 
-data "aws_vpc" "existing" {
+data "aws_vpc" "main" {
   filter {
     name   = "tag:Name"
     values = ["main"]
@@ -53,13 +53,21 @@ output "ecs_cluster_id" {
 }
 
 
-data "aws_ecs_task_definition" "existing_task" {
+data "aws_ecs_task_definition" "app_task" {
   task_definition = "app_task" 
 #task family name
 }
 
 output "ecs_task_definition_arn" {
   value = data.aws_ecs_task_definition.existing_task.arn
+}
+
+data "aws_lb_target_group" "app-tg" {
+  target_group = "app-tg" 
+}
+
+output "aws_lb_target_group" {
+  value = data.aws_lb_target_group
 }
 
 data "aws_ecr_repository" "app_repo" {
@@ -72,3 +80,11 @@ data "aws_ecr_image" "latest_image" {
   most_recent     = true
 }
 
+
+
+resource "aws_lb_target_group" "app_tg" {
+  name     = "app-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+}
