@@ -35,8 +35,8 @@ variable "vpc_id" {
 #  type        = list(string)
 #}
 
-variable "task_family_name" {
-  description = "The family name of the ECS task definition"
-  type        = string
-}
+#variable "task_family_name" {
+#  description = "The family name of the ECS task definition"
+#  type        = string
+#}
 
